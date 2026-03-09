@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep Gummy Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: #FFFFFF;
+  color: #4A5D53;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.quiz-wrapper {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.quiz-card {
+  background: #FFFFFF;
+  border: 1.5px solid rgba(27,58,47,0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(27,58,47,0.06);
+}
+
+.quiz-header {
+  background: #1B3A2F;
+  padding: 28px 28px 24px;
+  text-align: center;
+}
+
+.quiz-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #FFFFFF;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.quiz-header p {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  font-weight: 400;
+}
+
+.quiz-body {
+  padding: 24px 28px 28px;
+}
+
+/* Progress */
+.progress-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.progress-step {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(27,58,47,0.08);
+  transition: background 0.4s ease;
+}
+
+.progress-step.active {
+  background: #1B3A2F;
+}
+
+.progress-step.done {
+  background: #D4A04A;
+}
+
+/* Question */
+.question-container {
+  animation: fadeUp 0.35s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #7A8B82;
+  margin-bottom: 8px;
+}
+
+.question-text {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 19px;
+  color: #1B3A2F;
+  margin-bottom: 20px;
+  line-height: 1.35;
+}
+
+/* Options */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px 18px;
+  background: #F8F6F2;
+  border: 1.5px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.option-btn:hover {
+  border-color: rgba(27,58,47,0.15);
+  background: #F3F0EB;
+}
+
+.option-btn:active {
+  transform: scale(0.985);
+}
+
+.option-btn.selected {
+  border-color: #1B3A2F;
+  background: rgba(27,58,47,0.04);
+}
+
+.option-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  border: 1px solid rgba(27,58,47,0.06);
+}
+
+.option-label {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: #1B3A2F;
+  line-height: 1.35;
+}
+
+.option-desc {
+  font-size: 12px;
+  color: #7A8B82;
+  margin-top: 2px;
+  font-weight: 400;
+}
+
+/* Result */
+.result-container {
+  animation: fadeUp 0.4s ease;
+}
+
+.result-badge {
+  display: inline-block;
+  background: #D4A04A;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.result-title {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: #1B3A2F;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.result-subtitle {
+  font-size: 14px;
+  color: #7A8B82;
+  margin-bottom: 20px;
+}
+
+.result-panel {
+  background: #F8F6F2;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.result-panel h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: #1B3A2F;
+  margin-bottom: 10px;
+}
+
+.trait-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(27,58,47,0.06);
+  font-size: 13.5px;
+}
+
+.trait-row:last-child { border-bottom: none; }
+
+.trait-label { color: #7A8B82; }
+.trait-value { color: #1B3A2F; font-weight: 600; }
+
+.result-note {
+  font-size: 13px;
+  color: #7A8B82;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.cta-btn {
+  display: block;
+  width: 100%;
+  padding: 15px;
+  background: #1B3A2F;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.cta-btn:hover { background: #24493B; }
+
+.restart-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #7A8B82;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.restart-btn:hover { color: #1B3A2F; }
+
+/* Intensity meter */
+.intensity-meter {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.intensity-bar {
+  width: 28px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(27,58,47,0.08);
+}
+
+.intensity-bar.filled-1 { background: #1B3A2F; }
+.intensity-bar.filled-2 { background: #D4A04A; }
+.intensity-bar.filled-3 { background: #C2553A; }
+.intensity-bar.filled-4 { background: #A63030; }
+</style>
+</head>
+<body>
+
+<div class="quiz-wrapper">
+  <div class="quiz-card">
+    <div class="quiz-header">
+      <h1>Sleep Gummy Finder</h1>
+      <p>Answer 3 quick questions to find your formula</p>
+    </div>
+    <div class="quiz-body" id="quizBody"></div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    step: "Question 1 of 3",
+    text: "Are you subject to drug testing?",
+    options: [
+      { icon: "🔬", label: "Yes, I need THC-free options", desc: "Workplace or other screening", value: "thc-free" },
+      { icon: "✅", label: "No, THC is fine for me", desc: "No drug testing concerns", value: "thc-ok" },
+      { icon: "🤔", label: "I'm not sure yet", desc: "I want to see all options", value: "unsure" }
+    ]
+  },
+  {
+    step: "Question 2 of 3",
+    text: "What matters most to you?",
+    options: [
+      { icon: "⚡", label: "Falling asleep fast", desc: "I need effects within minutes", value: "fast-onset" },
+      { icon: "🌙", label: "Staying in rest all night", desc: "I wake up at 3 a.m. too often", value: "stay-asleep" },
+      { icon: "☀️", label: "No grogginess tomorrow", desc: "I can't afford a foggy morning", value: "no-groggy" }
+    ]
+  },
+  {
+    step: "Question 3 of 3",
+    text: "How do you feel about melatonin?",
+    options: [
+      { icon: "👍", label: "I'm fine with melatonin", desc: "Whatever works best", value: "mel-ok" },
+      { icon: "👎", label: "I'd rather avoid it", desc: "It makes me groggy or stopped working", value: "no-mel" },
+      { icon: "🌿", label: "I prefer all-natural botanicals", desc: "Adaptogens, herbs, and cannabinoids only", value: "botanical" }
+    ]
+  }
+];
+
+const results = {
+  "thc-rapid-nomel": {
+    badge: "Your Match",
+    title: "Rapid-Onset THC + CBN + Botanicals",
+    subtitle: "The fastest path to deep, sustained rest without melatonin.",
+    rec: "Mood Sleepytime Advanced",
+    traits: { "Cannabinoids": "15mg THC + 5mg CBN", "Onset": "5–15 minutes", "Melatonin": "None", "Botanicals": "Ashwagandha, Magnesium, L-Theanine, Reishi, B2" },
+    note: "This formula addresses both falling asleep and staying in rest, with a rapid-onset technology that means you take it when you are actually ready for bed rather than planning around a two-hour window.",
+    cta: "https://mood.com/product/sleepytime-advanced-thc-gummies",
+    ctaText: "Shop Sleepytime Advanced",
+    intensity: 3
+  },
+  "thc-rapid-mel": {
+    badge: "Your Match",
+    title: "Full-Spectrum THC + CBN + Melatonin",
+    subtitle: "A multi-layered formula combining cannabinoids with melatonin support.",
+    rec: "cbdMD Lights Out Delta-9",
+    traits: { "Cannabinoids": "50mg CBD + 3mg THC + 20mg CBN", "Onset": "~60 minutes", "Melatonin": "5mg", "Extras": "Chamomile, L-Theanine" },
+    note: "This is a lower-THC, higher-CBD blend with melatonin for users who want the entourage effect without strong psychoactive intensity. Take it about an hour before your target rest time.",
+    cta: "",
+    ctaText: "",
+    intensity: 2
+  },
+  "thc-stay-nomel": {
+    badge: "Your Match",
+    title: "Balanced THC + CBD + CBN Blend",
+    subtitle: "Equal parts of three cannabinoids for all-night rest support.",
+    rec: "Snoozy Bedtime Delta-9",
+    traits: { "Cannabinoids": "10mg THC + 10mg CBD + 10mg CBN", "Onset": "30–60 minutes", "Melatonin": "None", "Extras": "Chamomile, L-Theanine" },
+    note: "The triple-cannabinoid blend is designed for users who wake up in the middle of the night. CBN provides the sustained duration while CBD and THC address different aspects of relaxation.",
+    cta: "",
+    ctaText: "",
+    intensity: 2
+  },
+  "thc-default": {
+    badge: "Your Match",
+    title: "Rapid-Onset THC + CBN + Botanicals",
+    subtitle: "A well-rounded formula covering fast onset, sustained rest, and clean mornings.",
+    rec: "Mood Sleepytime Advanced",
+    traits: { "Cannabinoids": "15mg THC + 5mg CBN", "Onset": "5–15 minutes", "Melatonin": "None", "Botanicals": "Ashwagandha, Magnesium, L-Theanine, Reishi, B2" },
+    note: "Based on your answers, a rapid-onset THC+CBN formula with botanical support is your strongest match. The fast onset and adaptogen blend address both falling asleep and morning clarity.",
+    cta: "https://mood.com/product/sleepytime-advanced-thc-gummies",
+    ctaText: "Shop Sleepytime Advanced",
+    intensity: 3
+  },
+  "free-nomel": {
+    badge: "Your Match",
+    title: "THC-Free CBD + CBN",
+    subtitle: "Drug-test safe rest support with no melatonin or THC.",
+    rec: "Snoozy Good Night's Sleep",
+    traits: { "Cannabinoids": "10mg CBD + 10mg CBN", "Onset": "30–45 minutes", "Melatonin": "None", "THC-Free": "Yes", "Extras": "Chamomile, L-Theanine" },
+    note: "This is the cleanest option for drug-test sensitive users who also want to skip melatonin. CBN provides the sedating effect without THC, though results may be milder than THC-containing formulas.",
+    cta: "",
+    ctaText: "",
+    intensity: 1
+  },
+  "free-mel": {
+    badge: "Your Match",
+    title: "THC-Free CBD + CBN + Melatonin",
+    subtitle: "Maximum rest support without any THC risk.",
+    rec: "cbdMD Broad Spectrum Sleep",
+    traits: { "Cannabinoids": "25mg CBD + 20mg CBN", "Onset": "30–60 minutes", "Melatonin": "5mg", "THC-Free": "Yes", "Extras": "Chamomile, L-Theanine" },
+    note: "Combining CBD, CBN, and melatonin gives you three different pathways to rest without any THC. Take one gummy about 30 to 60 minutes before your target rest time.",
+    cta: "",
+    ctaText: "",
+    intensity: 1
+  },
+  "free-botanical": {
+    badge: "Your Match",
+    title: "THC-Free Full-Spectrum CBD + Herbs",
+    subtitle: "Organic botanicals and CBD for gentle, natural rest support.",
+    rec: "Cornbread Hemp CBD Sleep",
+    traits: { "Cannabinoids": "25–100mg CBD + trace THC", "Onset": "~30 minutes", "Melatonin": "None", "Extras": "Valerian Root, Chamomile, Lavender" },
+    note: "Note: Cornbread Hemp is full-spectrum with up to 4mg THC per gummy at the highest strength, which could trigger a drug test. For guaranteed THC-free options, consider Snoozy's CBD+CBN gummies instead.",
+    cta: "",
+    ctaText: "",
+    intensity: 1
+  }
+};
+
+let answers = [];
+let currentQ = 0;
+
+function getResult() {
+  const [drug, priority, mel] = answers;
+  const thcOk = drug === "thc-ok" || drug === "unsure";
+  const wantsMel = mel === "mel-ok";
+  const wantsBotanical = mel === "botanical" || mel === "no-mel";
+
+  if (thcOk) {
+    if (priority === "fast-onset" && wantsBotanical) return results["thc-rapid-nomel"];
+    if (priority === "fast-onset" && wantsMel) return results["thc-rapid-mel"];
+    if (priority === "stay-asleep" && wantsBotanical) return results["thc-stay-nomel"];
+    if (priority === "stay-asleep" && wantsMel) return results["thc-rapid-mel"];
+    if (priority === "no-groggy") return results["thc-rapid-nomel"];
+    return results["thc-default"];
+  } else {
+    if (wantsMel) return results["free-mel"];
+    if (mel === "botanical") return results["free-botanical"];
+    return results["free-nomel"];
+  }
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const body = document.getElementById("quizBody");
+
+  let progressHTML = '<div class="progress-bar">';
+  for (let i = 0; i < questions.length; i++) {
+    const cls = i < currentQ ? "done" : i === currentQ ? "active" : "";
+    progressHTML += `<div class="progress-step ${cls}"></div>`;
+  }
+  progressHTML += '</div>';
+
+  let optionsHTML = q.options.map((o, idx) => `
+    <button class="option-btn" onclick="selectAnswer('${o.value}')">
+      <div class="option-icon">${o.icon}</div>
+      <div>
+        <div class="option-label">${o.label}</div>
+        <div class="option-desc">${o.desc}</div>
+      </div>
+    </button>
+  `).join('');
+
+  body.innerHTML = `
+    ${progressHTML}
+    <div class="question-container" key="${currentQ}">
+      <div class="step-label">${q.step}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">${optionsHTML}</div>
+    </div>
+  `;
+
+  sendHeight();
+}
+
+function selectAnswer(val) {
+  answers[currentQ] = val;
+  currentQ++;
+  if (currentQ < questions.length) {
+    renderQuestion();
+  } else {
+    renderResult();
+  }
+}
+
+function renderResult() {
+  const r = getResult();
+  const body = document.getElementById("quizBody");
+
+  let progressHTML = '<div class="progress-bar">';
+  for (let i = 0; i < questions.length; i++) {
+    progressHTML += '<div class="progress-step done"></div>';
+  }
+  progressHTML += '</div>';
+
+  let traitsHTML = Object.entries(r.traits).map(([k, v]) => `
+    <div class="trait-row">
+      <span class="trait-label">${k}</span>
+      <span class="trait-value">${v}</span>
+    </div>
+  `).join('');
+
+  let intensityHTML = '<div class="trait-row"><span class="trait-label">Intensity</span><div class="intensity-meter">';
+  for (let i = 1; i <= 4; i++) {
+    intensityHTML += `<div class="intensity-bar ${i <= r.intensity ? 'filled-' + i : ''}"></div>`;
+  }
+  intensityHTML += '</div></div>';
+
+  let ctaHTML = '';
+  if (r.cta) {
+    ctaHTML = `<a href="${r.cta}" target="_blank" rel="noopener" class="cta-btn">${r.ctaText}</a>`;
+  }
+
+  body.innerHTML = `
+    ${progressHTML}
+    <div class="result-container">
+      <div class="result-badge">${r.badge}</div>
+      <div class="result-title">${r.title}</div>
+      <div class="result-subtitle">${r.subtitle}</div>
+      <div class="result-panel">
+        <h3>${r.rec}</h3>
+        ${traitsHTML}
+        ${intensityHTML}
+      </div>
+      <div class="result-note">${r.note}</div>
+      ${ctaHTML}
+      <button class="restart-btn" onclick="restart()">Retake quiz</button>
+    </div>
+  `;
+
+  sendHeight();
+}
+
+function restart() {
+  answers = [];
+  currentQ = 0;
+  renderQuestion();
+}
+
+function sendHeight() {
+  requestAnimationFrame(() => {
+    const h = document.querySelector('.quiz-wrapper').scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: h + 20 }, '*');
+  });
+}
+
+window.addEventListener('resize', sendHeight);
+renderQuestion();
+</script>
+</body>
+</html>
